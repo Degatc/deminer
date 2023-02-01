@@ -1,14 +1,15 @@
 import React, { useState } from 'react';
 
 const Minesweeper = () => {
-  const [gridSize, setGridSize] = useState(10);
+  const [gridSize, setGridSize] = useState(9);
   const [gameStarted, setGameStarted] = useState(false);
   const [grid, setGrid] = useState([]);
   const [revealed, setRevealed] = useState([]);
 
   // Change grid size 
   const handleGridSizeChange = (event) => {
-    setGridSize(event.target.value);
+     setGridSize(event.target.value);
+
   };
 
   // Launching a game
@@ -22,7 +23,7 @@ const Minesweeper = () => {
     );
 
     setGrid(newGrid);
-    setRevealed(Array.from({ length: gridSize }, () => Array(gridSize).fill(false)));
+    setRevealed(Array.from({ length: gridSize }, () => Array.from({ length: gridSize }, () => false)));
     setGameStarted(true);
   };
 
@@ -31,7 +32,7 @@ const Minesweeper = () => {
     if (grid[rowIndex][colIndex] === 'mine') {
       // Game over
       alert("Game Over! You've hit a mine.");
-      setRevealed(Array.from({ length: gridSize }, () => Array(gridSize).fill(true)));
+      setRevealed(Array.from({ length: gridSize }, () => Array.from({ length: gridSize }, () => true)));
     } else {
       // Revealed case
       const newRevealed = [...revealed];
@@ -39,6 +40,7 @@ const Minesweeper = () => {
       setRevealed(newRevealed);
     }
   };
+  console.log(revealed)
 
   return (
     <div>
