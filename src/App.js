@@ -39,16 +39,54 @@ const Minesweeper = () => {
   };
 
   // User click
+  const revealAdjacentCells = (grid, revealed, rowIndex, colIndex) => {
+    let count = 0;
+    const directions = [[-1, -1], [-1, 0], [-1, 1], [0, -1], [0, 1], [1, -1], [1, 0], [1, 1]];
+    for (const [rowDiff, colDiff] of directions) {
+      const newRowIndex = rowIndex + rowDiff;
+      const newColIndex = colIndex + colDiff;
+      if (
+        newRowIndex >= 0 &&
+        newRowIndex < grid.length &&
+        newColIndex >= 0 &&
+        newColIndex < grid[0].length
+      ) {
+        if (grid[newRowIndex][newColIndex] === 'mine') {
+          count++;
+        }
+      }
+    }
+  
+    const newRevealed = [...revealed];
+    newRevealed[rowIndex][colIndex] = true;
+    setRevealed(newRevealed);
+  
+    if (count === 0) {
+      for (const [rowDiff, colDiff] of directions) {
+        const newRowIndex = rowIndex + rowDiff;
+        const newColIndex = colIndex + colDiff;
+        if (
+          newRowIndex >= 0 &&
+          newRowIndex < grid.length &&
+          newColIndex >= 0 &&
+          newColIndex < grid[0].length &&
+          !revealed[newRowIndex][newColIndex]
+        ) {
+          revealAdjacentCells(grid, newRevealed, newRowIndex, newColIndex);
+        }
+      }
+    }
+  };
+  
+  // User click
   const handleCellClick = (rowIndex, colIndex) => {
     if (grid[rowIndex][colIndex] === 'mine') {
       // Game over
       alert("Game Over! You've hit a mine.");
-      setRevealed(Array.from({ length: gridSize }, () => Array.from({ length: gridSize }, () => true)));
+      setRevealed(Array.from({ length: gridSize }, () => Array(gridSize).fill(true)));
     } else {
-      // Revealed case
-      const newRevealed = [...revealed];
-      newRevealed[rowIndex][colIndex] = true;
-      setRevealed(newRevealed);
+      // Reveal adjacent cells
+      revealAdjacentCells(grid, revealed, rowIndex, colIndex);
     }
   };
 
