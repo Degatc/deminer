@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import './App.css';
 
 const Minesweeper = () => {
@@ -6,6 +6,16 @@ const Minesweeper = () => {
   const [gameStarted, setGameStarted] = useState(false);
   const [grid, setGrid] = useState([]);
   const [revealed, setRevealed] = useState([]);
+  const [timer, setTimer] = useState(0);
+
+  useEffect(() => {
+    if (gameStarted) {
+      const intervalId = setInterval(() => {
+        setTimer((prevTimer) => prevTimer + 1);
+      }, 1000);
+      return () => clearInterval(intervalId);
+    }
+  }, [gameStarted]);
 
   // Change grid size 
   const handleGridSizeChange = (event) => {
@@ -41,7 +51,13 @@ const Minesweeper = () => {
       setRevealed(newRevealed);
     }
   };
-  console.log(revealed)
+
+  // Abandoned 
+  const abandoned = () => {
+    setGameStarted(false);
+    setGridSize(9);
+    setTimer(0)
+  };
 
   return (
     <div id='main'>
@@ -60,6 +76,7 @@ const Minesweeper = () => {
       )}
       {gameStarted && (
         <div>
+          <h2>Timer: {timer} seconds</h2>
           <table>
             <tbody>
               {grid.map((row, rowIndex) => (
@@ -75,6 +92,7 @@ const Minesweeper = () => {
               ))}
             </tbody>
           </table>
+          <button onClick={abandoned}>Abandonné</button>
         </div>
       )}
     </div>
