@@ -83,7 +83,7 @@ const Minesweeper = () => {
     if (grid[rowIndex][colIndex] === 'mine') {
       // Game over
       alert("Game Over! You've hit a mine.");
-      setRevealed(Array.from({ length: gridSize }, () => Array(gridSize).fill(true)));
+      setRevealed(Array.from({ length: gridSize }, () => Array.from({ length: gridSize }, () => true)));
     } else {
       // Reveal adjacent cells
       revealAdjacentCells(grid, revealed, rowIndex, colIndex);
