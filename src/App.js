@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import './App.css';
 
 const Minesweeper = () => {
   const [gridSize, setGridSize] = useState(9);
@@ -43,7 +44,7 @@ const Minesweeper = () => {
   console.log(revealed)
 
   return (
-    <div>
+    <div id='main'>
       <h1>Minesweeper</h1>
       {!gameStarted && (
         <div>
@@ -65,8 +66,8 @@ const Minesweeper = () => {
                 <tr key={rowIndex}>
                   {row.map((cell, colIndex) => (
                     <td key={colIndex}>
-                      <button onClick={() => handleCellClick(rowIndex, colIndex)}>
-                        {revealed[rowIndex][colIndex] ? (cell === 'mine' ? ' X ' : ' O ') : '_?_'}
+                      <button id='cell' onClick={() => handleCellClick(rowIndex, colIndex)}>
+                        {revealed[rowIndex][colIndex] ? (cell === 'mine' ? ' X ' : ' O ') : '?'}
                       </button>
                     </td>
                   ))}
