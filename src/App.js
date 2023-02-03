@@ -90,12 +90,26 @@ const Minesweeper = () => {
     }
   };
 
+  // Handle right click
+  const handleRightClick = (e, rowIndex, colIndex) => {
+    const newRevealed = [...revealed];
+    if (newRevealed[rowIndex][colIndex] === 'flag') {
+      newRevealed[rowIndex][colIndex] = false;
+    } else {
+      newRevealed[rowIndex][colIndex] = 'flag';
+    }
+    setRevealed(newRevealed);
+    e.preventDefault();
+    return false;
+  };
+
   // Abandoned 
   const abandoned = () => {
     setGameStarted(false);
     setGridSize(9);
     setTimer(0)
   };
+  
 
   return (
     <div id='main'>
@@ -121,8 +135,8 @@ const Minesweeper = () => {
                 <tr key={rowIndex}>
                   {row.map((cell, colIndex) => (
                     <td key={colIndex}>
-                      <button id='cell' onClick={() => handleCellClick(rowIndex, colIndex)}>
-                        {revealed[rowIndex][colIndex] ? (cell === 'mine' ? ' X ' : ' O ') : '?'}
+                      <button id='cell' onClick={() => handleCellClick(rowIndex, colIndex)} onContextMenu={(e) => handleRightClick(e, rowIndex, colIndex)}>
+                        {revealed[rowIndex][colIndex] === 'flag' ? ' ⚑ ' : revealed[rowIndex][colIndex] ? (cell === 'mine' ? ' X ' : ' O ') : '?'}
                       </button>
                     </td>
                   ))}
@@ -136,5 +150,8 @@ const Minesweeper = () => {
     </div>
   );
 };
+
+
+
 
 export default Minesweeper;
