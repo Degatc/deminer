@@ -7,6 +7,8 @@ const Minesweeper = () => {
   const [grid, setGrid] = useState([]);
   const [revealed, setRevealed] = useState([]);
   const [timer, setTimer] = useState(0);
+  const [score, setScore] = useState(0);
+
 
   useEffect(() => {
     if (gameStarted) {
@@ -19,7 +21,7 @@ const Minesweeper = () => {
 
   // Change grid size 
   const handleGridSizeChange = (event) => {
-     setGridSize(event.target.value);
+    setGridSize(event.target.value);
 
   };
 
@@ -56,11 +58,11 @@ const Minesweeper = () => {
         }
       }
     }
-  
+
     const newRevealed = [...revealed];
     newRevealed[rowIndex][colIndex] = true;
     setRevealed(newRevealed);
-  
+
     if (count === 0) {
       for (const [rowDiff, colDiff] of directions) {
         const newRowIndex = rowIndex + rowDiff;
@@ -80,7 +82,7 @@ const Minesweeper = () => {
 
   const checkForWin = (grid, revealed) => {
     let win = true;
-  
+
     for (let rowIndex = 0; rowIndex < grid.length; rowIndex++) {
       for (let colIndex = 0; colIndex < grid[0].length; colIndex++) {
         if (grid[rowIndex][colIndex] !== 'mine' && !revealed[rowIndex][colIndex]) {
@@ -89,12 +91,12 @@ const Minesweeper = () => {
         }
       }
     }
-  
+
     if (win) {
       alert("You've won!");
     }
   }
-  
+
   // User click
   const handleCellClick = (rowIndex, colIndex) => {
     if (grid[rowIndex][colIndex] === 'mine') {
@@ -105,6 +107,7 @@ const Minesweeper = () => {
       // Reveal adjacent cells
       revealAdjacentCells(grid, revealed, rowIndex, colIndex);
       checkForWin(grid, revealed)
+      setScore(getAdjacentMinesCount(grid, rowIndex, colIndex));
     }
   };
 
@@ -126,9 +129,29 @@ const Minesweeper = () => {
   const abandoned = () => {
     setGameStarted(false);
     setGridSize(9);
-    setTimer(0)
+    setTimer(0);
+    setScore(0)
   };
-  
+
+  function getAdjacentMinesCount(grid, rowIndex, colIndex) {
+    let count = 0;
+    const directions = [[-1, -1], [-1, 0], [-1, 1], [0, -1], [0, 1], [1, -1], [1, 0], [1, 1]];
+    for (const [rowDiff, colDiff] of directions) {
+      const newRowIndex = rowIndex + rowDiff;
+      const newColIndex = colIndex + colDiff;
+      if (
+        newRowIndex >= 0 &&
+        newRowIndex < grid.length &&
+        newColIndex >= 0 &&
+        newColIndex < grid[0].length
+      ) {
+        if (grid[newRowIndex][newColIndex] === 'mine') {
+          count++;
+        }
+      }
+    }
+    return count;
+  }
 
   return (
     <div id='main'>
@@ -148,6 +171,7 @@ const Minesweeper = () => {
       {gameStarted && (
         <div>
           <h2>Timer: {timer} seconds</h2>
+          <h2>Score: {score}</h2>
           <table>
             <tbody>
               {grid.map((row, rowIndex) => (
@@ -155,7 +179,7 @@ const Minesweeper = () => {
                   {row.map((cell, colIndex) => (
                     <td key={colIndex}>
                       <button id='cell' onClick={() => handleCellClick(rowIndex, colIndex)} onContextMenu={(e) => handleRightClick(e, rowIndex, colIndex)}>
-                        {revealed[rowIndex][colIndex] === 'flag' ? ' ⚑ ' : revealed[rowIndex][colIndex] ? (cell === 'mine' ? ' X ' : ' O ') : '?'}
+                        {revealed[rowIndex][colIndex] === 'flag' ? ' ⚑ ' : revealed[rowIndex][colIndex] ? (cell === 'mine' ? "💣"  : getAdjacentMinesCount(grid, rowIndex, colIndex)) : '?'}
                       </button>
                     </td>
                   ))}
@@ -169,8 +193,6 @@ const Minesweeper = () => {
     </div>
   );
 };
-
-
 
 
 export default Minesweeper;
