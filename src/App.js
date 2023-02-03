@@ -77,6 +77,23 @@ const Minesweeper = () => {
       }
     }
   };
+
+  const checkForWin = (grid, revealed) => {
+    let win = true;
+  
+    for (let rowIndex = 0; rowIndex < grid.length; rowIndex++) {
+      for (let colIndex = 0; colIndex < grid[0].length; colIndex++) {
+        if (grid[rowIndex][colIndex] !== 'mine' && !revealed[rowIndex][colIndex]) {
+          win = false;
+          break;
+        }
+      }
+    }
+  
+    if (win) {
+      alert("You've won!");
+    }
+  }
   
   // User click
   const handleCellClick = (rowIndex, colIndex) => {
@@ -87,6 +104,7 @@ const Minesweeper = () => {
     } else {
       // Reveal adjacent cells
       revealAdjacentCells(grid, revealed, rowIndex, colIndex);
+      checkForWin(grid, revealed)
     }
   };
 
@@ -102,6 +120,7 @@ const Minesweeper = () => {
     e.preventDefault();
     return false;
   };
+
 
   // Abandoned 
   const abandoned = () => {
