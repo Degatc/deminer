@@ -8,6 +8,7 @@ const Minesweeper = () => {
   const [revealed, setRevealed] = useState([]);
   const [timer, setTimer] = useState(0);
   const [score, setScore] = useState(0);
+  let win = false;
 
 
   useEffect(() => {
@@ -132,6 +133,57 @@ const Minesweeper = () => {
     setTimer(0);
     setScore(0)
   };
+
+// Ajouter le classement 
+let classement = [];
+
+// Fonction pour ajouter le score du joueur 
+const addClassement = (nom, score) => {
+  classement.push({
+    nom: nom,
+    score: score
+  });
+};
+
+// Fonction pour trier le classement 
+const sortClassement = () => {
+  classement.sort((a, b) => {
+    return b.score - a.score;
+  });
+};
+
+
+// Fonction pour afficher le classement sous le plateau 
+const displayClassement = () => {
+  const classementDiv = document.getElementById("classement");
+
+  // Trier le classement 
+  sortClassement();
+
+  // Afficher le classement 
+  const classementList = document.createElement("ol");
+  classement.forEach((item) => {
+    const li = document.createElement("li");
+    li.appendChild(document.createTextNode(`${item.nom}: ${item.score}`));
+    classementList.appendChild(li);
+  });
+  classementDiv.appendChild(classementList);
+};
+
+// Fonction pour demander le nom du joueur en cas de victoire 
+const demanderNomJoueur = (score) => {
+  const nom = prompt("Bravo, vous avez gagné ! Entrez votre nom pour enregistrer votre score :");
+  addClassement(nom, score);
+  displayClassement();
+};
+
+
+if (verifierVictoire(jeu)) {
+  alert("Bravo, vous avez gagné !");
+  demanderNomJoueur(score);
+  resetJeu();
+  return;
+}
 
   function getAdjacentMinesCount(grid, rowIndex, colIndex) {
     let count = 0;
