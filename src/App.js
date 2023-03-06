@@ -8,7 +8,14 @@ const Minesweeper = () => {
   const [revealed, setRevealed] = useState([]);
   const [timer, setTimer] = useState(0);
   const [score, setScore] = useState(0);
-  let win = false;
+  const [ranking, setRanking] = useState([]);
+
+  useEffect(() => {
+    const rankingFromLocalStorage = JSON.parse(localStorage.getItem('ranking'));
+    if (rankingFromLocalStorage) {
+      setRanking(rankingFromLocalStorage);
+    }
+  }, []);
 
 
   useEffect(() => {
@@ -19,6 +26,18 @@ const Minesweeper = () => {
       return () => clearInterval(intervalId);
     }
   }, [gameStarted]);
+
+
+  // Fonction pour demander le nom du joueur en cas de victoire 
+  const demanderNomJoueur = (score) => {
+    const nom = prompt("Bravo, vous avez gagné ! Entrez votre nom pour enregistrer votre score :");
+    const newScore = score + 1;
+    const newPlayer = { name: nom, score: newScore };
+    const newRanking = [...ranking, newPlayer].sort((a, b) => b.score - a.score).slice(0, 30);
+    setRanking(newRanking);
+    setScore(newScore);
+    localStorage.setItem('ranking', JSON.stringify(newRanking));
+  };
 
   // Change grid size 
   const handleGridSizeChange = (event) => {
@@ -94,7 +113,9 @@ const Minesweeper = () => {
     }
 
     if (win) {
-      alert("You've won!");
+      demanderNomJoueur(score);
+      console.log(ranking)
+      return;
     }
   }
 
@@ -133,57 +154,6 @@ const Minesweeper = () => {
     setTimer(0);
     setScore(0)
   };
-
-// Ajouter le classement 
-let classement = [];
-
-// Fonction pour ajouter le score du joueur 
-const addClassement = (nom, score) => {
-  classement.push({
-    nom: nom,
-    score: score
-  });
-};
-
-// Fonction pour trier le classement 
-const sortClassement = () => {
-  classement.sort((a, b) => {
-    return b.score - a.score;
-  });
-};
-
-
-// Fonction pour afficher le classement sous le plateau 
-const displayClassement = () => {
-  const classementDiv = document.getElementById("classement");
-
-  // Trier le classement 
-  sortClassement();
-
-  // Afficher le classement 
-  const classementList = document.createElement("ol");
-  classement.forEach((item) => {
-    const li = document.createElement("li");
-    li.appendChild(document.createTextNode(`${item.nom}: ${item.score}`));
-    classementList.appendChild(li);
-  });
-  classementDiv.appendChild(classementList);
-};
-
-// Fonction pour demander le nom du joueur en cas de victoire 
-const demanderNomJoueur = (score) => {
-  const nom = prompt("Bravo, vous avez gagné ! Entrez votre nom pour enregistrer votre score :");
-  addClassement(nom, score);
-  displayClassement();
-};
-
-
-if (verifierVictoire(jeu)) {
-  alert("Bravo, vous avez gagné !");
-  demanderNomJoueur(score);
-  resetJeu();
-  return;
-}
 
   function getAdjacentMinesCount(grid, rowIndex, colIndex) {
     let count = 0;
@@ -231,7 +201,7 @@ if (verifierVictoire(jeu)) {
                   {row.map((cell, colIndex) => (
                     <td key={colIndex}>
                       <button id='cell' onClick={() => handleCellClick(rowIndex, colIndex)} onContextMenu={(e) => handleRightClick(e, rowIndex, colIndex)}>
-                        {revealed[rowIndex][colIndex] === 'flag' ? ' ⚑ ' : revealed[rowIndex][colIndex] ? (cell === 'mine' ? "💣"  : getAdjacentMinesCount(grid, rowIndex, colIndex)) : '?'}
+                        {revealed[rowIndex][colIndex] === 'flag' ? ' ⚑ ' : revealed[rowIndex][colIndex] ? (cell === 'mine' ? "💣" : getAdjacentMinesCount(grid, rowIndex, colIndex)) : '?'}
                       </button>
                     </td>
                   ))}
@@ -241,6 +211,29 @@ if (verifierVictoire(jeu)) {
           </table>
           <button onClick={abandoned}>Abandonné</button>
         </div>
+      )}
+      <h2>Classement</h2>
+      {ranking.length > 0 ? (
+        <table>
+          <thead>
+            <tr>
+              <th>Rank</th>
+              <th>Name</th>
+              <th>Score</th>
+            </tr>
+          </thead>
+          <tbody>
+            {ranking.map((player, index) => (
+              <tr key={index}>
+                <td>{index + 1}</td>
+                <td>{player.name}</td>
+                <td>{player.score}</td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      ) : (
+        <p>Pas encore de classment ! Soit le premier !</p>
       )}
     </div>
   );
