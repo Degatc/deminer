@@ -11,14 +11,6 @@ const Minesweeper = () => {
   const [ranking, setRanking] = useState([]);
 
   useEffect(() => {
-    const rankingFromLocalStorage = JSON.parse(localStorage.getItem('ranking'));
-    if (rankingFromLocalStorage) {
-      setRanking(rankingFromLocalStorage);
-    }
-  }, []);
-
-
-  useEffect(() => {
     if (gameStarted) {
       const intervalId = setInterval(() => {
         setTimer((prevTimer) => prevTimer + 1);
@@ -27,40 +19,13 @@ const Minesweeper = () => {
     }
   }, [gameStarted]);
 
+  useEffect(() => {
+    const rankingFromLocalStorage = JSON.parse(localStorage.getItem('ranking'));
+    if (rankingFromLocalStorage) {
+      setRanking(rankingFromLocalStorage);
+    }
+  }, []);
 
-  // Fonction pour demander le nom du joueur en cas de victoire 
-  const demanderNomJoueur = (score) => {
-    const nom = prompt("Bravo, vous avez gagné ! Entrez votre nom pour enregistrer votre score :");
-    const newScore = score + 1;
-    const newPlayer = { name: nom, score: newScore };
-    const newRanking = [...ranking, newPlayer].sort((a, b) => b.score - a.score).slice(0, 30);
-    setRanking(newRanking);
-    setScore(newScore);
-    localStorage.setItem('ranking', JSON.stringify(newRanking));
-  };
-
-  // Change grid size 
-  const handleGridSizeChange = (event) => {
-    setGridSize(event.target.value);
-
-  };
-
-  // Launching a game
-  const startGame = () => {
-    // Generate grid with random mines
-    const newGrid = Array.from({ length: gridSize }, (_, rowIndex) =>
-      Array.from({ length: gridSize }, (_, colIndex) => {
-        const randomNum = Math.random();
-        return randomNum < 0.15 ? 'mine' : null;
-      })
-    );
-
-    setGrid(newGrid);
-    setRevealed(Array.from({ length: gridSize }, () => Array.from({ length: gridSize }, () => false)));
-    setGameStarted(true);
-  };
-
-  // User click
   const revealAdjacentCells = (grid, revealed, rowIndex, colIndex) => {
     let count = 0;
     const directions = [[-1, -1], [-1, 0], [-1, 1], [0, -1], [0, 1], [1, -1], [1, 0], [1, 1]];
@@ -100,6 +65,42 @@ const Minesweeper = () => {
     }
   };
 
+  const demanderNomJoueur = () => {
+    const nom = prompt("Bravo, vous avez gagné ! Entrez votre nom pour enregistrer votre score :");
+    return nom
+  };
+
+  const handleWin = (score) => {
+    const playerName = demanderNomJoueur()
+    const newScore = score + 1;
+    const newPlayer = { name: playerName, score: newScore };
+    const newRanking = [...ranking, newPlayer].sort((a, b) => b.score - a.score).slice(0, 30);
+    setRanking(newRanking);
+    setScore(newScore);
+    localStorage.setItem('ranking', JSON.stringify(newRanking));
+  }
+
+  // Change grid size 
+  const handleGridSizeChange = (event) => {
+    setGridSize(event.target.value);
+
+  };
+
+  // Launching a game
+  const startGame = () => {
+    // Generate grid with random mines
+    const newGrid = Array.from({ length: gridSize }, (_, rowIndex) =>
+      Array.from({ length: gridSize }, (_, colIndex) => {
+        const randomNum = Math.random();
+        return randomNum < 0.15 ? 'mine' : null;
+      })
+    );
+
+    setGrid(newGrid);
+    setRevealed(Array.from({ length: gridSize }, () => Array.from({ length: gridSize }, () => false)));
+    setGameStarted(true);
+  };
+
   const checkForWin = (grid, revealed) => {
     let win = true;
 
@@ -113,8 +114,7 @@ const Minesweeper = () => {
     }
 
     if (win) {
-      demanderNomJoueur(score);
-      console.log(ranking)
+      handleWin(score);
       return;
     }
   }
