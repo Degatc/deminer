@@ -10,6 +10,7 @@ const Minesweeper = () => {
   const [score, setScore] = useState(0);
   const [ranking, setRanking] = useState([]);
 
+  // Temps de jeu
   useEffect(() => {
     if (gameStarted) {
       const intervalId = setInterval(() => {
@@ -19,6 +20,7 @@ const Minesweeper = () => {
     }
   }, [gameStarted]);
 
+  // Classement => localStorage
   useEffect(() => {
     const rankingFromLocalStorage = JSON.parse(localStorage.getItem('ranking'));
     if (rankingFromLocalStorage) {
@@ -26,6 +28,63 @@ const Minesweeper = () => {
     }
   }, []);
 
+  // Change la taille de la grille
+  const handleGridSizeChange = (event) => {
+    setGridSize(event.target.value);
+  };
+
+  // Lance la partie
+  const startGame = () => {
+    // Génèreration de la grille et des mines
+    const newGrid = Array.from({ length: gridSize }, (_, rowIndex) =>
+      Array.from({ length: gridSize }, (_, colIndex) => {
+        const randomNum = Math.random();
+        return randomNum < 0.15 ? 'mine' : null;
+      })
+    );
+
+    setGrid(newGrid);
+    setRevealed(Array.from({ length: gridSize }, () => Array.from({ length: gridSize }, () => false)));
+    setGameStarted(true);
+  };
+
+  // Demande le nom du joueur
+  const askplayername = () => {
+    const nom = prompt("Bravo, vous avez gagné ! Entrez votre nom pour enregistrer votre score :");
+    return nom
+  };
+
+  // Gestion de la victoire
+  const handleWin = (score) => {
+    const playerName = askplayername()
+    const newScore = score + 1;
+    const newPlayer = { name: playerName, score: newScore };
+    const newRanking = [...ranking, newPlayer].sort((a, b) => b.score - a.score).slice(0, 30);
+    setRanking(newRanking);
+    setScore(newScore);
+    localStorage.setItem('ranking', JSON.stringify(newRanking));
+  }
+
+  // Verification de la victoire
+  const checkForWin = (grid, revealed) => {
+    let win = true;
+
+    for (let rowIndex = 0; rowIndex < grid.length; rowIndex++) {
+      for (let colIndex = 0; colIndex < grid[0].length; colIndex++) {
+        if (grid[rowIndex][colIndex] !== 'mine' && !revealed[rowIndex][colIndex]) {
+          win = false;
+          break;
+        }
+      }
+    }
+    
+    if (win) {
+      handleWin(score);
+      return;
+    }
+  }
+
+  // Découvre les cases adjacentes
   const revealAdjacentCells = (grid, revealed, rowIndex, colIndex) => {
     let count = 0;
     const directions = [[-1, -1], [-1, 0], [-1, 1], [0, -1], [0, 1], [1, -1], [1, 0], [1, 1]];
@@ -64,102 +123,8 @@ const Minesweeper = () => {
       }
     }
   };
-  
-  //demande le nom du joueur
-  const askplayername = () => {
-    const nom = prompt("Bravo, vous avez gagné ! Entrez votre nom pour enregistrer votre score :");
-    return nom
-  };
 
-  const handleWin = (score) => {
-    const playerName = askplayername()
-    const newScore = score + 1;
-    const newPlayer = { name: playerName, score: newScore };
-    const newRanking = [...ranking, newPlayer].sort((a, b) => b.score - a.score).slice(0, 30);
-    setRanking(newRanking);
-    setScore(newScore);
-    localStorage.setItem('ranking', JSON.stringify(newRanking));
-  }
-
-  // Change la taille de la grid
-  const handleGridSizeChange = (event) => {
-    setGridSize(event.target.value);
-
-  };
-
-  // Lance la partie
-  const startGame = () => {
-    // Génère les mines
-    const newGrid = Array.from({ length: gridSize }, (_, rowIndex) =>
-      Array.from({ length: gridSize }, (_, colIndex) => {
-        const randomNum = Math.random();
-        return randomNum < 0.15 ? 'mine' : null;
-      })
-    );
-
-    setGrid(newGrid);
-    setRevealed(Array.from({ length: gridSize }, () => Array.from({ length: gridSize }, () => false)));
-    setGameStarted(true);
-  };
-
-  const checkForWin = (grid, revealed) => {
-    let win = true;
-
-    for (let rowIndex = 0; rowIndex < grid.length; rowIndex++) {
-      for (let colIndex = 0; colIndex < grid[0].length; colIndex++) {
-        if (grid[rowIndex][colIndex] !== 'mine' && !revealed[rowIndex][colIndex]) {
-          win = false;
-          break;
-        }
-      }
-    }
-
-    if (win) {
-      handleWin(score);
-      return;
-    }
-  }
-
-  const handleCellClick = (rowIndex, colIndex) => {
-    if (revealed[rowIndex][colIndex]) {
-      return;
-    }
-  
-    if (grid[rowIndex][colIndex] === 'mine') {
-      // Fin de partie
-      alert("Game Over! You've hit a mine.");
-      setRevealed(Array.from({ length: gridSize }, () => Array.from({ length: gridSize }, () => true)));
-    } else {
-      // Découvrir les cases adjacentes
-      revealAdjacentCells(grid, revealed, rowIndex, colIndex);
-      checkForWin(grid, revealed)
-      setScore(score + getAdjacentMinesCount(grid, rowIndex, colIndex));
-    }
-  };
-  
-
-  // Mettre les drapeaux 
-  const handleRightClick = (e, rowIndex, colIndex) => {
-    const newRevealed = [...revealed];
-    if (newRevealed[rowIndex][colIndex] === 'flag') {
-      newRevealed[rowIndex][colIndex] = false;
-    } else {
-      newRevealed[rowIndex][colIndex] = 'flag';
-    }
-    setRevealed(newRevealed);
-    e.preventDefault();
-    return false;
-  };
-
-
-  // Abandonnée 
-  const abandoned = () => {
-    setGameStarted(false);
-    setGridSize(9);
-    setTimer(0);
-    setScore(0)
-  };
-
+  // Comptage des mines adjacentes
   function getAdjacentMinesCount(grid, rowIndex, colIndex) {
     let count = 0;
     const directions = [[-1, -1], [-1, 0], [-1, 1], [0, -1], [0, 1], [1, -1], [1, 0], [1, 1]];
@@ -179,6 +144,46 @@ const Minesweeper = () => {
     }
     return count;
   }
+
+  // Gestion d'un clic sur une case
+  const handleCellClick = (rowIndex, colIndex) => {
+    if (revealed[rowIndex][colIndex]) {
+      // Case déjà découverte
+      return;
+    }
+  
+    if (grid[rowIndex][colIndex] === 'mine') {
+      // Fin de partie
+      alert("Game Over! You've hit a mine.");
+      setRevealed(Array.from({ length: gridSize }, () => Array.from({ length: gridSize }, () => true)));
+    } else {
+      // Découvre les cases adjacentes
+      revealAdjacentCells(grid, revealed, rowIndex, colIndex);
+      checkForWin(grid, revealed);
+      setScore(score + getAdjacentMinesCount(grid, rowIndex, colIndex));
+    }
+  };
+
+  // Mettre les drapeaux 
+  const handleRightClick = (e, rowIndex, colIndex) => {
+    const newRevealed = [...revealed];
+    if (newRevealed[rowIndex][colIndex] === 'flag') {
+      newRevealed[rowIndex][colIndex] = false;
+    } else {
+      newRevealed[rowIndex][colIndex] = 'flag';
+    }
+    setRevealed(newRevealed);
+    e.preventDefault();
+    return false;
+  };
+
+  // Rejouer 
+  const replay = () => {
+    setGameStarted(false);
+    setGridSize(9);
+    setTimer(0);
+    setScore(0)
+  };
 
   return (
     <div id='main'>
@@ -208,7 +213,7 @@ const Minesweeper = () => {
                   {row.map((cell, colIndex) => (
                     <td key={colIndex}>
                       <button id='cell' onClick={() => handleCellClick(rowIndex, colIndex)} onContextMenu={(e) => handleRightClick(e, rowIndex, colIndex)}>
-                        {revealed[rowIndex][colIndex] === 'flag' ? ' ⚑ ' : revealed[rowIndex][colIndex] ? (cell === 'mine' ? "💣" : getAdjacentMinesCount(grid, rowIndex, colIndex)) : '?'}
+                        {revealed[rowIndex][colIndex] === 'flag' ? ' ⚑ ' : revealed[rowIndex][colIndex] ? (cell === 'mine' ? "💣" : getAdjacentMinesCount(grid, rowIndex, colIndex)) : ' '}
                       </button>
                     </td>
                   ))}
@@ -216,7 +221,7 @@ const Minesweeper = () => {
               ))}
             </tbody>
           </table>
-          <button class="button" onClick={abandoned}>Abandonné</button>
+          <button class="button" onClick={replay}>Rejouer</button>
         </div>
       )}
       <h2>Classement</h2>
@@ -245,6 +250,5 @@ const Minesweeper = () => {
     </div>
   );
 };
-
 
 export default Minesweeper;
