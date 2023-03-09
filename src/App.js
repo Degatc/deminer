@@ -77,7 +77,7 @@ const Minesweeper = () => {
         }
       }
     }
-    
+
     if (win) {
       handleWin(score);
       return;
@@ -151,7 +151,7 @@ const Minesweeper = () => {
       // Case déjà découverte
       return;
     }
-  
+
     if (grid[rowIndex][colIndex] === 'mine') {
       // Fin de partie
       alert("Game Over! You've hit a mine.");
@@ -198,7 +198,7 @@ const Minesweeper = () => {
             <option value={30}>Maître : 30x30</option>
           </select>
           <div>
-          <button class="button" onClick={startGame}>Commencer la partie !</button>
+            <button class="button" onClick={startGame}>Commencer la partie !</button>
           </div>
         </div>
       )}
