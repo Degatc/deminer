@@ -119,8 +119,12 @@ const Minesweeper = () => {
     }
   }
 
-  // User click
   const handleCellClick = (rowIndex, colIndex) => {
+    if (revealed[rowIndex][colIndex]) {
+      // Case already revealed, do nothing
+      return;
+    }
+  
     if (grid[rowIndex][colIndex] === 'mine') {
       // Game over
       alert("Game Over! You've hit a mine.");
@@ -129,9 +133,10 @@ const Minesweeper = () => {
       // Reveal adjacent cells
       revealAdjacentCells(grid, revealed, rowIndex, colIndex);
       checkForWin(grid, revealed)
-      setScore(getAdjacentMinesCount(grid, rowIndex, colIndex));
+      setScore(score + getAdjacentMinesCount(grid, rowIndex, colIndex));
     }
   };
+  
 
   // Handle right click
   const handleRightClick = (e, rowIndex, colIndex) => {
@@ -177,22 +182,24 @@ const Minesweeper = () => {
 
   return (
     <div id='main'>
-      <h1>Minesweeper</h1>
+      <h1>Démineur</h1>
       {!gameStarted && (
         <div>
-          <label htmlFor="grid-size-select">Select Grid Size:</label>
-          <select id="grid-size-select" onChange={handleGridSizeChange}>
+          <label class="button" htmlFor="grid-size-select">Sélectionner une difficulté:</label>
+          <select class="button" id="grid-size-select" onChange={handleGridSizeChange}>
             <option value={9}>Débutant : 9x9</option>
             <option value={16}>Intermédiaire : 16x16</option>
             <option value={22}>Expert : 22x22</option>
             <option value={30}>Maître : 30x30</option>
           </select>
-          <button onClick={startGame}>Start Game</button>
+          <div>
+          <button class="button" onClick={startGame}>Commencer la partie !</button>
+          </div>
         </div>
       )}
       {gameStarted && (
         <div>
-          <h2>Timer: {timer} seconds</h2>
+          <h2>Temps: {timer} secondes</h2>
           <h2>Score: {score}</h2>
           <table>
             <tbody>
@@ -209,7 +216,7 @@ const Minesweeper = () => {
               ))}
             </tbody>
           </table>
-          <button onClick={abandoned}>Abandonné</button>
+          <button class="button" onClick={abandoned}>Abandonné</button>
         </div>
       )}
       <h2>Classement</h2>
@@ -217,8 +224,8 @@ const Minesweeper = () => {
         <table>
           <thead>
             <tr>
-              <th>Rank</th>
-              <th>Name</th>
+              <th>Rang</th>
+              <th>Nom</th>
               <th>Score</th>
             </tr>
           </thead>

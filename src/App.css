@@ -42,6 +42,15 @@
   color: #61dafb;
 }
 
+.button {
+  background-color: white;
+  color: black;
+  font-size: 15px;
+  padding: 10px 40px;
+  border-radius: 5px;
+  margin: 10px 10px;
+  cursor: pointer;
+}
 
 @keyframes App-logo-spin {
   from {
