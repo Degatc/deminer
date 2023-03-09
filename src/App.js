@@ -64,14 +64,15 @@ const Minesweeper = () => {
       }
     }
   };
-
-  const demanderNomJoueur = () => {
+  
+  //demande le nom du joueur
+  const askplayername = () => {
     const nom = prompt("Bravo, vous avez gagné ! Entrez votre nom pour enregistrer votre score :");
     return nom
   };
 
   const handleWin = (score) => {
-    const playerName = demanderNomJoueur()
+    const playerName = askplayername()
     const newScore = score + 1;
     const newPlayer = { name: playerName, score: newScore };
     const newRanking = [...ranking, newPlayer].sort((a, b) => b.score - a.score).slice(0, 30);
@@ -80,15 +81,15 @@ const Minesweeper = () => {
     localStorage.setItem('ranking', JSON.stringify(newRanking));
   }
 
-  // Change grid size 
+  // Change la taille de la grid
   const handleGridSizeChange = (event) => {
     setGridSize(event.target.value);
 
   };
 
-  // Launching a game
+  // Lance la partie
   const startGame = () => {
-    // Generate grid with random mines
+    // Génère les mines
     const newGrid = Array.from({ length: gridSize }, (_, rowIndex) =>
       Array.from({ length: gridSize }, (_, colIndex) => {
         const randomNum = Math.random();
@@ -121,16 +122,15 @@ const Minesweeper = () => {
 
   const handleCellClick = (rowIndex, colIndex) => {
     if (revealed[rowIndex][colIndex]) {
-      // Case already revealed, do nothing
       return;
     }
   
     if (grid[rowIndex][colIndex] === 'mine') {
-      // Game over
+      // Fin de partie
       alert("Game Over! You've hit a mine.");
       setRevealed(Array.from({ length: gridSize }, () => Array.from({ length: gridSize }, () => true)));
     } else {
-      // Reveal adjacent cells
+      // Découvrir les cases adjacentes
       revealAdjacentCells(grid, revealed, rowIndex, colIndex);
       checkForWin(grid, revealed)
       setScore(score + getAdjacentMinesCount(grid, rowIndex, colIndex));
@@ -138,7 +138,7 @@ const Minesweeper = () => {
   };
   
 
-  // Handle right click
+  // Mettre les drapeaux 
   const handleRightClick = (e, rowIndex, colIndex) => {
     const newRevealed = [...revealed];
     if (newRevealed[rowIndex][colIndex] === 'flag') {
@@ -152,7 +152,7 @@ const Minesweeper = () => {
   };
 
 
-  // Abandoned 
+  // Abandonnée 
   const abandoned = () => {
     setGameStarted(false);
     setGridSize(9);
